@@ -81,6 +81,7 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
             if (isset($params['name'])) {
                 $slug = str_slug($params['name']);
             }
+            $cover = null;
 
             if (isset($params['cover']) && ($params['cover'] instanceof UploadedFile)) {
                 $cover = $this->uploadOne($params['cover'], 'categories');

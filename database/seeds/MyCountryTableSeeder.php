@@ -17,7 +17,7 @@ class MyCountryTableSeeder extends Seeder
                 array (
                     'id' => '1',
                     'iso' => 'BR',
-                    'name' => 'BRAZIL',
+                    'name' => 'BRASIL',
                     'iso3' => 'BRA',
                     'numcode' => '76',
                     'phonecode' => '55',
