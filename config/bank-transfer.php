@@ -3,7 +3,7 @@
 return [
     'name' => 'Transferência Bancária',
     'description' => 'Transferência Bancária',
-    'bank_name' => env('BANK_TRANSFER_NAME', 'Banco do Brasil'),
+    'bank_name' => env('BANK_TRANSFER_NAME', 'Santander'),
     'account_type' => env('BANK_TRANSFER_ACCOUNT_TYPE', 'Conta Corrente'),
     'account_name' => env('BANK_TRANSFER_ACCOUNT_NAME', 'John Doe'),
     'account_number' => env('BANK_TRANSFER_ACCOUNT_NUMBER', '99999-999-99999'),

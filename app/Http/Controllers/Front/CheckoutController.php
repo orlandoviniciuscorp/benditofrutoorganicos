@@ -105,7 +105,7 @@ class CheckoutController extends Controller
      */
     public function index(CartDeliveryCheckoutRequest $request)
     {
-        $this->neededBag();
+        //$this->neededBag();
 
 
         $customer = $request->user();

@@ -36,17 +36,16 @@
                     <div class="col-md-6">
                         <div class="box-body">
                             <hr />
-                            <h3>Banco: Banco do Brasil</h3>
-                            <hr>
-                            <p>Código do Banco: <strong>001</strong></p>
+                            <p><strong>Banco: Santander</strong></p>
+                            <p>Código do Banco: <strong>033</strong></p>
                             <p>Tipo de Conta: <strong>Conta Corrente</strong></p>
-                            <p>Beneficiário: <strong>Sarita De Cassia C. Marques </strong></p>
-                            <p>Agência: <strong>1252-1</strong></p>
-                            <p>Número da Conta: <strong> 21529-5</strong></p>
-                            <p>CPF: <strong>126.853.717-96</strong></p>
+                            <p>Beneficiário: <strong>Fabiana Fróes Cordeiro</strong></p>
+                            <p>Agência: <strong>3838</strong></p>
+                            <p>Número da Conta: <strong> 01-096603-7</strong></p>
+                            <p>CPF: <strong>102.825.617-57</strong></p>
                             <p>Valor: <strong> {{ config('cart.currency_symbol') }} {{ $total }}</strong></p>
                             <p><strong><small class="text-danger text">* {{ config('bank-transfer.note') }}</small></strong></p>
-                            <p><strong><small class="text-danger text">*Enviar o comprovante de depósito para o  número: (21) 96618-9093 - Jenifer</small></strong></p>
+                            <p><strong><small class="text-danger text">*Enviar o comprovante de depósito para o  número: (21) 99451-6260 - Fabiana</small></strong></p>
 
                         </div>
                     </div>
