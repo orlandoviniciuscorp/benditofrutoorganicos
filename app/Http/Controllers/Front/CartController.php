@@ -69,7 +69,7 @@ class CartController extends Controller
     public function index()
     {
 
-        $this->neededBag();
+       // $this->neededBag();
 
         $couriers = $this->courierRepo->allEnable();
 
