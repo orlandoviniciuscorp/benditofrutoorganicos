@@ -18,13 +18,13 @@
 
     <div class="row">
         <h1>
-            Pedidos de sábado 12hs até 3a feira ao 12hs. Entrega às Quintas-feiras.
+            Pedidos de Sábado 18hs até 3a feira ao 12hs. Entrega às Quintas-feiras.
         </h1>
     </div>
     <div class="row">
 
         <div class="image-clean">
-            <img src="img/logo_medio.jpg" class="img-thumbnail"/>
+            <img src="img/logo.jpg" class="img-thumbnail"/>
         </div>
         <br />
         <h1>
