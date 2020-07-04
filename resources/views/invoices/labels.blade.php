@@ -20,68 +20,62 @@
 <body>
 
 <section class="container">
-<!-- Default box -->
+    <!-- Default box -->
     <h2>{{env('APP_NAME')}} - Etiquetas</h2>
     @if($orders)
-                @foreach ($orders as $order)
 
-                <table>
-                    <tr>
-                        <td>
-                            {{env('APP_NAME')}}<br /><br />
-                            <strong>Número do Pedido</strong>
-                            <br />
-                        #{{$order->id}}
-                            <br />
-                            <br />
+        @foreach ($orders as $order)
+            <table>
+                <tr>
+                    <td width="30%" style="padding-left: 5px">
+                        {{env('APP_NAME')}} - {{$order->fair->name}}<br />
+                        <br/><br />
+                        <strong>Número do Pedido</strong>: #{{$order->id}}
+                        <br />
+                        <br />
 
-                            <strong>Cliente</strong>
-                            <br />
-                            {{$order->customer->name}}
-                            <br /><br />
-                            <strong>Telefone</strong>
-                            <br />
-                           <small> {{$order->address->phone}}
-                           </small>
-                            <br /><br/>
-                            <strong>Valor a Pagar</strong>
-                            <br />
-                            <small>{{currency_format($order->total)}}
-                            </small>
-                            <br >
-                            <br/>
-                            Forma de Pagamento:
-                            {{$order->payment}}
-                        </td>
+                        <strong>Cliente - Telefone</strong>
+                        <br />
+                        {{$order->customer->name}} -
+                        <small> {{$order->address->phone}}
+                        </small>
+                        <br /><br/>
+                        <strong>Valor a Pagar</strong>
+                        <br />
+                        <small><strong>Dinheiro:</strong> {{currency_format($order->total)}}
+                        </small>
+                        <br />
+                        <br />
+                        <strong>Forma de Pagamento:</strong>
+                        {{$order->payment}}
+                        <br />
+                        <strong>Tipo de Entrega:</strong>
+                        {{$order->courier->name}}
+                        <br />
 
-                        <td>
-                            <strong>Tipo de Entrega:</strong>
-                            {{$order->courier->name}}
+                        <strong>Endereço:</strong> <br/>
+                        {{$order->address->address_1}} - {{$order->address->address_2}} <br />
+                        {{$order->address->neighborhoods}}
+                        <br /><br/>
 
-                            <br />
-                            <br />
-
-                            <strong>Endereço:</strong> <br/>
-                            {{$order->address->address_1}} - {{$order->address->address_2}} - {{$order->address->neighborhoods}}
-                        </td>
-                        <td>
-                            <strong>Produtos:</strong><br />
-                               @foreach($order->products as $product)
-                                {{$product->name }} - {{$product->pivot->quantity }} <br />
-                                @endforeach
-                        </td>
-                        <td>
-                            Observação: <br />
-                           <small> {{$order->obs}}</li>
-                           </small>
-                        </td>
-                    </tr>
-                </table>
-        <br />
+                    </td>
+                    <td width="50%">
+                        <strong>Produtos:</strong><br />
+                        @foreach($order->products as $product)
+                            &nbsp;<strong>{{$product->pivot->quantity }}</strong> - {{$product->name }} <br />
+                        @endforeach
+                    </td>
+                    <td width="20%">
+                        <strong>Observação:</strong><br />
+                        <small>{{$order->obs}}</small>
+                    </td>
+                </tr>
+            </table>
+            <br />
             <br/>
-                @endforeach
+        @endforeach
 
-        <!-- /.box-body -->
+    <!-- /.box-body -->
 
         <!-- /.box -->
 
