@@ -23,8 +23,8 @@
 <!-- Default box -->
     <h2>{{env('APP_NAME')}} - Etiquetas</h2>
     @if($orders)
-
                 @foreach ($orders as $order)
+
                 <table>
                     <tr>
                         <td>

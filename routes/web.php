@@ -34,6 +34,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['employee'], 'as' => 'admin.
                Route::post('/store','Percentages\PercentageController@store')->name('percentages.store');
             });
 
+            Route::group(['prefix'=>'coupons'],function(){
+                Route::get('/create','Coupons\CouponController@create')->name('coupons.create');
+                Route::get('/','Coupons\CouponController@index')->name('coupons.index');
+                Route::post('/store','Coupons\CouponController@store')->name('coupons.store');
+                Route::get('{coupon_id}/edit','Coupons\CouponController@edit')->name('coupons.edit');
+                Route::post('{coupon_id}/destroy','Coupons\CouponController@destroy')->name('coupons.destroy');
+            });
+
             Route::namespace('Products')->group(function () {
 
                 Route::post('/update-quantity', 'ProductController@updateQuantity')->name('products.update-quantity');
@@ -130,11 +138,14 @@ Route::namespace('Front')->group(function () {
         Route::post('cancel-order', 'AccountsController@cancelOrder')->name('accounts.cancel-order');
         Route::get('checkout/{courier_id}', 'CheckoutController@index')->name('checkout.index');
         Route::post('checkout/store', 'CheckoutController@store')->name('checkout.store');
-        Route::post('checkout/cart', 'CheckoutController@index')->name('cart.checkout');
+        Route::get('checkout/cart', 'CheckoutController@index')->name('cart.checkout');
         Route::get('checkout/execute', 'CheckoutController@executePayPalPayment')->name('checkout.execute');
         Route::post('checkout/execute', 'CheckoutController@charge')->name('checkout.execute');
         Route::get('checkout/cancel', 'CheckoutController@cancel')->name('checkout.cancel');
         Route::get('checkout/success', 'CheckoutController@success')->name('checkout.success');
+        Route::post('checkout/validate', 'CheckoutController@validateCoupon')->name('checkout.coupon.validate');
+
+
         Route::resource('customer.address', 'CustomerAddressController');
     });
     Route::resource('cart', 'CartController');
