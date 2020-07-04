@@ -1,0 +1,408 @@
+<?php
+
+namespace App\Http\Controllers\Admin\Coupons;
+
+use App\Shop\Attributes\Repositories\AttributeRepositoryInterface;
+use App\Shop\AttributeValues\Repositories\AttributeValueRepositoryInterface;
+use App\Shop\Brands\Repositories\BrandRepositoryInterface;
+use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
+use App\Shop\Coupons\Repositories\CouponRepository;
+use App\Shop\Coupons\Requests\CreateCouponRequest;
+use App\Shop\ProductAttributes\ProductAttribute;
+use App\Shop\ProductPercents\ProductPercent;
+use App\Shop\ProductPercents\Repositories\ProductPercentRepository;
+use App\Shop\Products\Exceptions\ProductInvalidArgumentException;
+use App\Shop\Products\Exceptions\ProductNotFoundException;
+use App\Shop\Products\Product;
+use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
+use App\Shop\Products\Repositories\ProductRepository;
+use App\Shop\ProductPercents\Requests\CreateProductPercentRequest;
+use App\Shop\Products\Requests\CreateProductRequest;
+use App\Shop\Products\Requests\UpdateProductRequest;
+use App\Http\Controllers\Controller;
+use App\Shop\Tools\UploadableTrait;
+use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+
+class CouponController extends Controller
+{
+    use UploadableTrait;
+
+
+    /**
+     * @var CategoryRepositoryInterface
+     */
+    private $categoryRepo;
+
+    private $productPercentRepo;
+
+    /**
+     * @var AttributeRepositoryInterface
+     */
+    private $attributeRepo;
+
+    /**
+     * @var AttributeValueRepositoryInterface
+     */
+    private $attributeValueRepository;
+
+    /**
+     * @var ProductAttribute
+     */
+    private $productAttribute;
+
+    /**
+     * @var BrandRepositoryInterface
+     */
+    private $brandRepo;
+
+    private $couponRepository;
+
+    /**
+     * ProductController constructor.
+     *
+     * @param ProductRepositoryInterface $productRepository
+     * @param CategoryRepositoryInterface $categoryRepository
+     * @param AttributeRepositoryInterface $attributeRepository
+     * @param AttributeValueRepositoryInterface $attributeValueRepository
+     * @param ProductAttribute $productAttribute
+     * @param BrandRepositoryInterface $brandRepository
+     */
+    public function __construct(
+        ProductRepositoryInterface $productRepository,
+        CouponRepository $couponRepository,
+        CategoryRepositoryInterface $categoryRepository,
+        AttributeRepositoryInterface $attributeRepository,
+        AttributeValueRepositoryInterface $attributeValueRepository,
+        ProductAttribute $productAttribute,
+        BrandRepositoryInterface $brandRepository,
+        ProductPercentRepository $productPercentRepository
+    ) {
+        $this->productRepo = $productRepository;
+        $this->categoryRepo = $categoryRepository;
+        $this->attributeRepo = $attributeRepository;
+        $this->attributeValueRepository = $attributeValueRepository;
+        $this->productAttribute = $productAttribute;
+        $this->brandRepo = $brandRepository;
+        $this->productPercentRepo = $productPercentRepository;
+        $this->couponRepository = $couponRepository;
+
+        $this->middleware(['permission:create-product, guard:employee'], ['only' => ['create', 'store']]);
+        $this->middleware(['permission:update-product, guard:employee'], ['only' => ['edit', 'update']]);
+        $this->middleware(['permission:delete-product, guard:employee'], ['only' => ['destroy']]);
+        $this->middleware(['permission:view-product, guard:employee'], ['only' => ['index', 'show']]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $coupons = $this->getAllCoupons();
+
+        return view('admin.coupons.list', [
+            'coupons' => $coupons
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view('admin.coupons.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  CreateProductRequest $request
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function store(CreateCouponRequest $request)
+    {
+        $data = $request->except('_token', '_method');
+
+
+
+        $product = $this->couponRepository->store($data);
+
+
+        $request->session()->flash('message', $this->getSucessMesseger());
+
+        return redirect()->route('admin.coupons.index');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int $id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show(int $id)
+    {
+        $product = $this->productRepo->findProductById($id);
+        return view('admin.products.show', compact('product'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int $id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(int $id)
+    {
+        $coupon = $this->couponRepository->find($id);
+
+	
+        return view('admin.coupons.edit', [
+            'coupon' => $coupon,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  UpdateProductRequest $request
+     * @param  int $id
+     *
+     * @return \Illuminate\Http\Response
+     * @throws \App\Shop\Products\Exceptions\ProductUpdateErrorException
+     */
+    public function update(UpdateProductRequest $request, int $id)
+    {
+        $product = $this->productRepo->findProductById($id);
+        $productRepo = new ProductRepository($product);
+
+        if ($request->has('attributeValue')) {
+            $this->saveProductCombinations($request, $product);
+            return redirect()->route('admin.products.edit', [$id, 'combination' => 1])
+                ->with('message', $this->getSucessMesseger());
+        }
+
+        $data = $request->except(
+            'categories',
+            '_token',
+            '_method',
+            'default',
+            'image',
+            'productAttributeQuantity',
+            'productAttributePrice',
+            'attributeValue',
+            'combination'
+        );
+
+        $data['slug'] = str_slug($request->input('name'));
+
+        if ($request->hasFile('cover')) {
+            $data['cover'] = $productRepo->saveCoverImage($request->file('cover'));
+        }
+
+        if ($request->hasFile('image')) {
+            $productRepo->saveProductImages(collect($request->file('image')));
+        }
+
+        if ($request->has('categories')) {
+            $productRepo->syncCategories($request->input('categories'));
+        } else {
+            $productRepo->detachCategories();
+        }
+
+        $productRepo->updateProduct($data);
+
+        return redirect()->route('admin.products.edit', $id)
+            ->with('message', $this->getSucessMesseger());
+    }
+
+    public function updateQuantity(Request $request)
+    {
+
+
+
+        $product = $this->productRepo->find($request->input('id'));
+        $product->quantity = $request->input('quantity');
+        $product->save();
+
+        $products = $this->getAllProducts();
+
+        $request->session()->flash('message', $this->getSucessMesseger());
+
+//        return view('admin.products.list', [
+//            'products' => $this->productRepo->paginateArrayResults($products, 25)
+//        ]);
+
+        return redirect()->back()->with('message',$this->getSucessMesseger());
+
+
+    }
+
+    public function indexPercent(Request $request, int $product_id)
+    {
+        $product = $this->productRepo->findProductById($product_id);
+
+        return view('admin.percents.create')->with('product',$product);
+    }
+
+    public function percentStore(CreateProductPercentRequest $request, int $product_id)
+    {
+
+
+        $data = $request->except('_token', '_method');
+        $this->productPercentRepo->createProductPercent($data);
+        $product = $this->productRepo->findProductById($product_id);
+        return redirect()->route('admin.products.edit', $product_id);
+    }
+
+    public function emptyAvailability()
+    {
+        $products = $this->getAllProducts();
+
+        foreach($products as $product){
+            $p = $this->productRepo->find($product->id);
+            $p->quantity = 0;
+            $p->save();
+        }
+
+        return redirect()->route('admin.dashboard');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     *
+     * @return \Illuminate\Http\Response
+     * @throws \Exception
+     */
+    public function destroy($id)
+    {
+        $product = $this->productRepo->findProductById($id);
+        $product->categories()->sync([]);
+        $productAttr = $product->attributes();
+
+        $productAttr->each(function ($pa) {
+            DB::table('attribute_value_product_attribute')->where('product_attribute_id', $pa->id)->delete();
+        });
+
+        $productAttr->where('product_id', $product->id)->delete();
+
+        $productRepo = new ProductRepository($product);
+        $productRepo->removeProduct();
+
+        return redirect()->route('admin.products.index')->with('message', $this->getSucessMesseger());
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function removeImage(Request $request)
+    {
+        $this->productRepo->deleteFile($request->only('product', 'image'), 'uploads');
+        return redirect()->back()->with('message', $this->getSucessMesseger());
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function removeThumbnail(Request $request)
+    {
+        $this->productRepo->deleteThumb($request->input('src'));
+        return redirect()->back()->with('message', $this->getSucessMesseger());
+    }
+
+    /**
+     * @param Request $request
+     * @param Product $product
+     * @return boolean
+     */
+    private function saveProductCombinations(Request $request, Product $product): bool
+    {
+        $fields = $request->only(
+            'productAttributeQuantity',
+            'productAttributePrice',
+            'sale_price',
+            'default'
+        );
+
+        if ($errors = $this->validateFields($fields)) {
+            return redirect()->route('admin.products.edit', [$product->id, 'combination' => 1])
+                ->withErrors($errors);
+        }
+
+        $quantity = $fields['productAttributeQuantity'];
+        $price = $fields['productAttributePrice'];
+
+        $sale_price = null;
+        if (isset($fields['sale_price'])) {
+            $sale_price = $fields['sale_price'];
+        }
+
+        $attributeValues = $request->input('attributeValue');
+        $productRepo = new ProductRepository($product);
+
+        $hasDefault = $productRepo->listProductAttributes()->where('default', 1)->count();
+
+        $default = 0;
+        if ($request->has('default')) {
+            $default = $fields['default'];
+        }
+
+        if ($default == 1 && $hasDefault > 0) {
+            $default = 0;
+        }
+
+        $productAttribute = $productRepo->saveProductAttributes(
+            new ProductAttribute(compact('quantity', 'price', 'sale_price', 'default'))
+        );
+
+        // save the combinations
+        return collect($attributeValues)->each(function ($attributeValueId) use ($productRepo, $productAttribute) {
+            $attribute = $this->attributeValueRepository->find($attributeValueId);
+            return $productRepo->saveCombination($productAttribute, $attribute);
+        })->count();
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return
+     */
+    private function validateFields(array $data)
+    {
+        $validator = Validator::make($data, [
+            'productAttributeQuantity' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return $validator;
+        }
+    }
+
+    public function getAllCoupons()
+    {
+        $list = $this->couponRepository->listCoupons('id');
+
+        if (request()->has('q') && request()->input('q') != '') {
+            $list = $this->couponRepository->searchProduct(request()->input('q'));
+        }
+
+
+
+        return $list;
+    }
+}

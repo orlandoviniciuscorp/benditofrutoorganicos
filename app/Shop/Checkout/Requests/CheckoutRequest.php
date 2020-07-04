@@ -30,6 +30,7 @@ class CheckoutRequest extends BaseFormRequest
      */
     public function rules()
     {
+        //dd('oi');
         return [
             'payment_method' => ['required']
         ];

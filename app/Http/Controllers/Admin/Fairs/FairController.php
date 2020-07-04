@@ -137,12 +137,12 @@ class FairController extends Controller
 
         $orders = app(Order::class)->where('fair_id','=',$fair_id)->whereNotIn('order_status_id',[env('ORDER_ERROR'),env('ORDER_CANCELED')])->get();
         $data = ['orders'=>$orders];
-        $pdf = app()->make('dompdf.wrapper');
-        $pdf->loadView('invoices.labels', $data)->stream();
+//        $pdf = app()->make('dompdf.wrapper');
+//        $pdf->loadView('invoices.labels', $data)->stream();
 
-        return $pdf->stream();
-
-//        return view('invoices.labels', $data);
+//        return $pdf->stream();
+//        dd($data);
+        return view('invoices.labels', $data);
         // return view('admin.orders.labels')->with('orders',$this->transFormOrder($orders));
     }
 

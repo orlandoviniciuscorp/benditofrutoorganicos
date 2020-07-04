@@ -112,8 +112,34 @@
                                     </table>
                                 </div>
                             </div> <br>
+                            <div class="row">
+                                <form method="post" action="{{route('checkout.coupon.validate')}}" >
+                                    {{ csrf_field() }}
+                                <div class="col-md-12">
+                                    <legend><i class="fa fa-usd"></i> Cupons de Desconto</legend>
+                                    <div class="row">
+                                        <div class="col-md-2">
 
-                        <div>
+                                            <input type="text" name="coupon"
+                                                   value="" class="form-control form-inline" /> &nbsp;
+                                            <input type="hidden" name="courier_id" value="{{$courier->id}}" />
+
+                                        </div>
+                                        <div class="col-md-2">
+
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fa fa-check" aria-hidden="true"></i> Validar
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                                </form>
+                            </div>
+
+
+
                             <table class="table table-striped">
                                 <tfoot>
                                 <tr>
@@ -132,31 +158,39 @@
                                         <td class="bg-warning">{{config('cart.currency')}} {{ $courier->cost }}</td>
                                     </tr>
                                 @endif
-                                {{--<tr>--}}
-                                {{--<td class="bg-warning">Tax</td>--}}
-                                {{--<td class="bg-warning"></td>--}}
-                                {{--<td class="bg-warning"></td>--}}
-                                {{--<td class="bg-warning"></td>--}}
-                                {{--<td class="bg-warning">{{config('cart.currency')}} {{ number_format($tax, 2) }}</td>--}}
-                                {{--</tr>--}}
+                                @if(session()->get('coupon') != null)
+                                <tr>
+                                <td class="bg-warning">Desconto</td>
+                                <td class="bg-warning"></td>
+                                <td class="bg-warning"></td>
+                                <td class="bg-warning"></td>
+                                <td class="bg-warning">{{config('cart.currency')}} {{ number_format(session()->get('coupon')->percentage *$total/100 , 2) }}</td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td class="bg-success">Total</td>
                                     <td class="bg-success"></td>
                                     <td class="bg-success"></td>
                                     <td class="bg-success"></td>
-                                    <td class="bg-success">{{config('cart.currency')}} {{ number_format($total, 2, '.', ',') }}</td>
+                                    @if(session()->get('coupon') != null)
+                                        <td class="bg-success">{{config('cart.currency')}} {{ number_format($total-session()->get('coupon')->percentage *$total/100, 2, '.', ',') }}</td>
+                                        @else
+                                        <td class="bg-success">{{config('cart.currency')}} {{ number_format($total, 2, '.', ',') }}</td>
+                                    @endif
                                 </tr>
                                 </tfoot>
                             </table>
-                        </div>
 
-                        <form action="{{ route('checkout.store') }}" method="post">
+                        <form action="{{ route('checkout.store') }}" id="checkout" name="checkout" method="post">
                         <div class="row">
                             <div class="col-md-12">
                                 <legend><i class="fa fa-commenting" aria-hidden="true"></i> Observação</legend>
                                 <textarea name="obs" class="form-control"
                                           placeholder="Gostaria de Acrescentar alguma observação?">{{old('obs')}}</textarea>
                                 <br />
+                                @if(session()->get('coupon') != null)
+                                    <input type="hidden" name="discount" value="{{session()->get('coupon')->percentage *$total/100}}" />
+                                @endif
                             </div>
                         </div>
 
@@ -226,6 +260,7 @@
                                             <p>Valor: <strong> {{ config('cart.currency_symbol') }} {{ $total }}</strong></p>
                                             <p><strong><small class="text-danger text">* {{ config('bank-transfer.note') }}</small></strong></p>
                                         <p><strong><small class="text-danger text">*Enviar o comprovante de depósito para o  número: (21) 99451-6260 - Fabiana</small></strong></p>
+                                        <p><button form="checkout" type="submit" onclick="return confirm('Tem Certeza?')" class="btn btn-danger">Confirmar Compra</button></p>
 
                                 </div>
                             </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Http\Controllers\Admin\Coupons\CouponController;
 use App\Shop\Addresses\Repositories\Interfaces\AddressRepositoryInterface;
 use App\Shop\Cart\Requests\CartCheckoutRequest;
 use App\Shop\Cart\Requests\CartDeliveryCheckoutRequest;
@@ -10,6 +11,8 @@ use App\Shop\Carts\Requests\PayPalCheckoutExecutionRequest;
 use App\Shop\Carts\Requests\StripeExecutionRequest;
 use App\Shop\Checkout\CheckoutRepository;
 use App\Shop\Checkout\Requests\CheckoutRequest;
+use App\Shop\Coupons\Coupon;
+use App\Shop\Coupons\Repositories\CouponRepository;
 use App\Shop\Couriers\Repositories\Interfaces\CourierRepositoryInterface;
 use App\Shop\Customers\Customer;
 use App\Shop\Customers\Repositories\CustomerRepository;
@@ -24,6 +27,7 @@ use App\Shop\PaymentMethods\Stripe\StripeRepository;
 use App\Shop\Products\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Shop\Products\Transformations\ProductTransformable;
 use App\Shop\Shipping\ShippingInterface;
+use Carbon\Carbon;
 use Exception;
 use App\Http\Controllers\Controller;
 use Gloudemans\Shoppingcart\Facades\Cart;
@@ -62,6 +66,8 @@ class CheckoutController extends Controller
      */
     protected $productRepo;
 
+    protected $couponRepo;
+
     /**
      * @var OrderRepositoryInterface
      */
@@ -84,7 +90,8 @@ class CheckoutController extends Controller
         CustomerRepositoryInterface $customerRepository,
         ProductRepositoryInterface $productRepository,
         OrderRepositoryInterface $orderRepository,
-        ShippingInterface $shipping
+        ShippingInterface $shipping,
+        CouponRepository $couponRepository
     ) {
         $this->cartRepo = $cartRepository;
         $this->courierRepo = $courierRepository;
@@ -94,6 +101,7 @@ class CheckoutController extends Controller
         $this->orderRepo = $orderRepository;
         $this->payPal = new PayPalExpressCheckoutRepository;
         $this->shippingRepo = $shipping;
+        $this->couponRepo = $couponRepository;
     }
 
     /**
@@ -103,7 +111,7 @@ class CheckoutController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(CartDeliveryCheckoutRequest $request)
+    public function index(CartDeliveryCheckoutRequest $request,$coupon = null)
     {
         //$this->neededBag();
 
@@ -146,6 +154,8 @@ class CheckoutController extends Controller
 
         return view('front.checkout', [
             'customer' => $customer,
+//            'discount'=>$this->cartRepo->getTotal(2,$courier->cost)*$coupon->percentage,
+//            'coupon'=>$coupon,
             'billingAddress' => $billingAddress,
             'addresses' => $customer->addresses()->get(),
             'products' => $this->cartRepo->getCartItems(),
@@ -199,8 +209,8 @@ class CheckoutController extends Controller
 //    }
 
 
-    public function store(CheckoutRequest $request)
-    {
+    public function store(CheckoutRequest $request)    {
+
         $checkoutRepo = new CheckoutRepository;
         $orderStatusRepo = new OrderStatusRepository(new OrderStatus);
         $os = $orderStatusRepo->findByName('Pedido Feito');
@@ -210,6 +220,12 @@ class CheckoutController extends Controller
         ||$request->input('payment_method') == config('debit.name')){
             $os = $orderStatusRepo->findByName('Pagar na Entrega');
         }
+        $discount = 0;
+
+        if($request->has('discount')){
+            $discount =  $request->input('discount');
+        }
+
 //
         $order = $checkoutRepo->buildCheckoutItems([
             'reference' => Uuid::uuid4()->toString(),
@@ -218,9 +234,9 @@ class CheckoutController extends Controller
             'address_id' => $request->input('billingAddress_id'),
             'order_status_id' => $os->id,
             'payment' => $request->input('payment_method'),
-            'discounts' => 0,
+            'discounts' => $discount,
             'total_products' => $this->cartRepo->getSubTotal(),
-            'total' => $this->cartRepo->getTotal(2, $courier->cost),
+            'total' => $this->cartRepo->getTotal(2, $courier->cost) - $discount,
             'total_shipping' => $courier->cost,
             'total_paid' => 0,
             'tax' => $this->cartRepo->getTax(),
@@ -336,4 +352,32 @@ class CheckoutController extends Controller
 
 
     }
+
+    public function validateCoupon(Request $request){
+
+
+        $coupon = Coupon::where('name',$request->get('coupon'))
+            ->where('expires_at', '>=', Carbon::now())
+            ->where('start_at', '<=', Carbon::now())
+            ->where('status', '!=', 0);
+
+        if ($coupon->count() == 0) {
+            return redirect()->back()->withErrors(['message'=>'Cupom Inválido']);
+
+        }else{
+
+            //return redirect(route('front.checkout'))->with('message','Cupom aplicado com sucesso');
+//            $request->session()->put(['coupon'=>$coupon->get()[0]]);
+            return redirect()->back()
+                ->with(['coupon'=>$coupon->get()[0]])
+                ->with(['message'=>'Cupom aplicado com sucesso'])
+            ;
+        }
+
+
+
+
+    }
+
+
 }
