@@ -20,8 +20,17 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="name">Percentual <span class="text-danger">*</span></label>
-                            <input type="text" name="percentage" id="percentage" placeholder="Percentual"  pattern="[\d.]*" class="form-control" value="{{ old('name') }}">
+                            <label for="customer">Tipo de Cupom</label>
+                                <select name="coupon_type_id" id="coupon_type_id" class="form-control select2">
+                                    @foreach($couponTypes as $couponType)
+                                        <option value="{{ $couponType->id }}">{{ $couponType->name }}</option>
+                                    @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">Valor <span class="text-danger">*</span></label>
+                            <input type="text" name="percentage" id="percentage" placeholder="Valor"  pattern="[\d.]*" class="form-control" value="{{ old('name') }}">
                         </div>
 
                         <div class="form-group">

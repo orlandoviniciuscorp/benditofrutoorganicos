@@ -15,16 +15,6 @@ class CreateCouponRequest extends BaseFormRequest
     {
         return [
 
-            'farmer'=>['numeric'],
-            'plataform'=>['numeric'],
-            'separation'=>['numeric'],
-            'fund'=>['numeric'],
-            'payments_transfer'=>['numeric'],
-            'client_contact'=>['numeric'],
-            'accounting_close'=>['numeric'],
-            'seeller'=>['numeric'],
-            'logistic'=>['numeric']
-
         ];
     }
 }
