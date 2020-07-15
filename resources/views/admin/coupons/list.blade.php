@@ -15,6 +15,7 @@
                             <tr>
                                 <td>ID</td>
                                 <td>Nome</td>
+                                <td>Tipo</td>
                                 <td>Percentual</td>
                                 <td>Descrição</td>
                                 <td>Início</td>
@@ -29,7 +30,13 @@
                         <tr >
                             <td>{{ $coupon->id}}</td>
                             <td>{{$coupon->name}}</td>
-                            <td>{{$coupon->percentage}}%</td>
+                            <td>{{$coupon->couponType->name}}</td>
+                            @if($coupon->couponType->name =='Percentual')
+                                <td>{{$coupon->percentage}}%</td>
+                            @else
+                                <td>R$ {{$coupon->percentage}}</td>
+                            @endif
+
                             <td>{{$coupon->description}}</td>
                             <td>{{$coupon->start_at}}</td>
                             <td>{{$coupon->expires_at}}</td>

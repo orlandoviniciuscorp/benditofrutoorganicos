@@ -49,4 +49,5 @@ class CouponType extends Model
     {
         return $this->hasMany(Coupon::class);
     }
+
 }
