@@ -28,6 +28,8 @@ class Coupon extends Model
         ]
     ];
 
+    protected $with =
+
     /**
      * The attributes that are mass assignable.
      *
@@ -59,5 +61,9 @@ class Coupon extends Model
     public function couponType()
     {
         return $this->belongsTo(CouponType::class);
+    }
+
+    public function isPercentual(){
+        return $this->couponType()->name == 'Percentual';
     }
 }

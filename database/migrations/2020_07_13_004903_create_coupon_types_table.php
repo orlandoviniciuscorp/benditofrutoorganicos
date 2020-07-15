@@ -1,5 +1,6 @@
 <?php
 
+use App\Shop\CouponTypes\CouponType;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -20,6 +21,12 @@ class CreateCouponTypesTable extends Migration
 
             $table->timestamps();
         });
+
+        app(CouponType::class)->create(['name'=>'Fixo',
+        'description'=>'Valor Fixo de desconto']);
+
+        app(CouponType::class)->create(['name'=>'Percentual',
+            'description'=>'Valor por percentual']);
     }
 
     /**

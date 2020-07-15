@@ -368,6 +368,12 @@ class CheckoutController extends Controller
 
             //return redirect(route('front.checkout'))->with('message','Cupom aplicado com sucesso');
 //            $request->session()->put(['coupon'=>$coupon->get()[0]]);
+            $courier = $this->courierRepo->findCourierById($request->input('courier_id'));
+
+            $total = $this->cartRepo->getTotal(2,$courier->cost);
+            if($coupon->){
+
+            }
             return redirect()->back()
                 ->with(['coupon'=>$coupon->get()[0]])
                 ->with(['message'=>'Cupom aplicado com sucesso'])
