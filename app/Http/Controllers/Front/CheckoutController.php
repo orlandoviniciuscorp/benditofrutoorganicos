@@ -120,25 +120,6 @@ class CheckoutController extends Controller
         $rates = null;
         $shipment_object_id = null;
 
-//        $error = false;
-//        $carItens = $this->cartRepo->getCartItems();
-        $msgErros = [];
-
-
-
-//        if($error){
-//
-//
-//            $couriers = $this->courierRepo->allEnable();
-//
-//            return view('front.carts.cart', [
-//                'cartItems' => $this->cartRepo->getCartItemsTransformed(),
-//                'subtotal' => $this->cartRepo->getSubTotal(),
-//                'tax' => $this->cartRepo->getTax(),
-//                'couriers' => $couriers,
-//                'total' => $this->cartRepo->getTotal(2)
-//            ])->withErrors($msgErros);
-//        }
         //dd($request->input('courier_id'));
 
 
@@ -361,22 +342,42 @@ class CheckoutController extends Controller
             ->where('start_at', '<=', Carbon::now())
             ->where('status', '!=', 0);
 
-        if ($coupon->count() == 0) {
+        if ((!$this->hasbasket()) || $coupon->count() == 0) {
             return redirect()->back()->withErrors(['message'=>'Cupom Inválido']);
 
         }else{
-
+            $coupon = $coupon->first();
             //return redirect(route('front.checkout'))->with('message','Cupom aplicado com sucesso');
 //            $request->session()->put(['coupon'=>$coupon->get()[0]]);
+            $courier = $this->courierRepo->findCourierById($request->input('courier_id'));
+
+            $total = $this->cartRepo->getTotal(2,$courier->cost);
+            $discount =  $coupon->percentage;
+
+            if($coupon->couponType->name == 'Percentual'){
+                $discount = $total*$coupon->percentage / 100;
+            }
+
             return redirect()->back()
                 ->with(['coupon'=>$coupon->get()[0]])
+                ->with(['discount'=>$discount])
                 ->with(['message'=>'Cupom aplicado com sucesso'])
             ;
         }
 
+    }
 
+    public function hasbasket()
+    {
+        foreach ($this->cartRepo->getCartItems() as $cartItem){
 
+            if($cartItem->product->categories->first()->slug == 'cestas'){
 
+                return true;
+            }
+
+        }
+        return false;
     }
 
 

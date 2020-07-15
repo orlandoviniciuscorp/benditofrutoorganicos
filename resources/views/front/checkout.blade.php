@@ -164,7 +164,7 @@
                                 <td class="bg-warning"></td>
                                 <td class="bg-warning"></td>
                                 <td class="bg-warning"></td>
-                                <td class="bg-warning">{{config('cart.currency')}} {{ number_format(session()->get('coupon')->percentage *$total/100 , 2) }}</td>
+                                <td class="bg-warning">{{config('cart.currency')}} {{ number_format(session()->get('discount') , 2) }}</td>
                                 </tr>
                                 @endif
                                 <tr>
@@ -173,7 +173,7 @@
                                     <td class="bg-success"></td>
                                     <td class="bg-success"></td>
                                     @if(session()->get('coupon') != null)
-                                        <td class="bg-success">{{config('cart.currency')}} {{ number_format($total-session()->get('coupon')->percentage *$total/100, 2, '.', ',') }}</td>
+                                        <td class="bg-success">{{config('cart.currency')}} {{ number_format($total-session()->get('discount'), 2, '.', ',') }}</td>
                                         @else
                                         <td class="bg-success">{{config('cart.currency')}} {{ number_format($total, 2, '.', ',') }}</td>
                                     @endif
