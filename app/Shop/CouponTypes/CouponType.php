@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Shop\Coupons;
+namespace App\Shop\CouponTypes;
 
 use App\Shop\Brands\Brand;
 use App\Shop\Categories\Category;
-use App\Shop\CouponTypes\CouponType;
 use App\Shop\ProductAttributes\ProductAttribute;
 use App\Shop\ProductImages\ProductImage;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
@@ -12,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
-class Coupon extends Model
+class CouponType extends Model
 {
     use SearchableTrait;
 
@@ -28,8 +27,6 @@ class Coupon extends Model
         ]
     ];
 
-    protected $with = ['couponType'];
-
     /**
      * The attributes that are mass assignable.
      *
@@ -38,12 +35,6 @@ class Coupon extends Model
     protected $fillable = [
         'name',
         'description',
-        'percentage',
-        'start_at',
-        'expires_at',
-        'status',
-        'coupon_type_id'
-
         ];
 
     /**
@@ -53,15 +44,10 @@ class Coupon extends Model
      */
     protected $hidden = [];
 
-    public function product()
-    {
-        return $this->hasMany(Product::class);
-    }
 
-    public function couponType()
+    public function coupons()
     {
-        return $this->belongsTo(CouponType::class);
+        return $this->hasMany(Coupon::class);
     }
-
 
 }

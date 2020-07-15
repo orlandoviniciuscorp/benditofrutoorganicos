@@ -8,6 +8,7 @@ use App\Shop\Brands\Repositories\BrandRepositoryInterface;
 use App\Shop\Categories\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Shop\Coupons\Repositories\CouponRepository;
 use App\Shop\Coupons\Requests\CreateCouponRequest;
+use App\Shop\CouponTypes\Repositories\CouponTypeRepository;
 use App\Shop\ProductAttributes\ProductAttribute;
 use App\Shop\ProductPercents\ProductPercent;
 use App\Shop\ProductPercents\Repositories\ProductPercentRepository;
@@ -61,6 +62,8 @@ class CouponController extends Controller
 
     private $couponRepository;
 
+    private $couponTypeRepository;
+
     /**
      * ProductController constructor.
      *
@@ -79,7 +82,8 @@ class CouponController extends Controller
         AttributeValueRepositoryInterface $attributeValueRepository,
         ProductAttribute $productAttribute,
         BrandRepositoryInterface $brandRepository,
-        ProductPercentRepository $productPercentRepository
+        ProductPercentRepository $productPercentRepository,
+        CouponTypeRepository $couponTypeRepository
     ) {
         $this->productRepo = $productRepository;
         $this->categoryRepo = $categoryRepository;
@@ -89,6 +93,7 @@ class CouponController extends Controller
         $this->brandRepo = $brandRepository;
         $this->productPercentRepo = $productPercentRepository;
         $this->couponRepository = $couponRepository;
+        $this->couponTypeRepository = $couponTypeRepository;
 
         $this->middleware(['permission:create-product, guard:employee'], ['only' => ['create', 'store']]);
         $this->middleware(['permission:update-product, guard:employee'], ['only' => ['edit', 'update']]);
@@ -117,7 +122,8 @@ class CouponController extends Controller
      */
     public function create()
     {
-        return view('admin.coupons.create');
+        $couponTypes = $this->couponTypeRepository->listCouponTypes();
+        return view('admin.coupons.create')->with('couponTypes', $couponTypes);
     }
 
     /**
