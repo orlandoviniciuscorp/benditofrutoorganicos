@@ -35,6 +35,41 @@
                             <input type="date" name="expires_at" value={{$coupon->expires_at}} id="expires_at" placeholder="dd/mm/yyyy" class="form-control" value="{{ old('name') }}">
                         </div>
 
+                        <div class="form-group">
+                            <label for="need_basket">Necessita de Cesta:</label>
+                            <ul class="checkbox-list">
+                                <li>
+                                    <div class="radio">
+                                        <label>
+                                            <input
+                                                    type="radio"
+                                                    @if($coupon->need_basket)
+                                                        checked="checked"
+                                                    @endif
+                                                    name="need_basket"
+                                                    value="1" />
+                                            Sim</label>
+
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="radio">
+                                        <label>
+                                            <input
+                                                    type="radio"
+                                                    @if(!$coupon->need_basket)
+                                                    checked="checked"
+                                                    @endif
+                                                    name="need_basket"
+                                                    value="0" />
+                                            Não</label>
+
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
                         @include('admin.shared.status-select', ['status' => 0])
                     </div>
                 </div>
