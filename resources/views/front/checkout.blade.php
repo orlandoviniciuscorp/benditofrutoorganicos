@@ -188,8 +188,8 @@
                                 <textarea name="obs" class="form-control"
                                           placeholder="Gostaria de Acrescentar alguma observação?">{{old('obs')}}</textarea>
                                 <br />
-                                @if(session()->get('coupon') != null)
-                                    <input type="hidden" name="discount" value="{{session()->get('coupon')->percentage *$total/100}}" />
+                                @if(session()->get('discount') != null)
+                                    <input type="hidden" name="discount" value="{{session()->get('discount')}}" />
                                 @endif
                             </div>
                         </div>
