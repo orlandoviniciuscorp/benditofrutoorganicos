@@ -39,6 +39,7 @@ class Coupon extends Model
         'name',
         'description',
         'percentage',
+        'need_basket',
         'start_at',
         'expires_at',
         'status',

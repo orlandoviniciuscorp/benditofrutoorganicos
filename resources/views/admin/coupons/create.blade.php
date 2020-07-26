@@ -42,6 +42,35 @@
                             <label for="name">Expira em: <span class="text-danger">*</span></label>
                             <input type="date" name="expires_at" id="expires_at" placeholder="dd/mm/yyyy" class="form-control" value="{{ old('name') }}">
                         </div>
+                        <div class="form-group">
+                            <label for="need_basket">Necessita de Cesta:</label>
+                            <ul class="checkbox-list">
+                                <li>
+                                    <div class="radio">
+                                        <label>
+                                            <input
+                                                    type="radio"
+                                                    checked="checked"
+                                                    name="need_basket"
+                                                    value="1" />
+                                            Sim</label>
+
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="radio">
+                                        <label>
+                                            <input
+                                                    type="radio"
+                                                    name="need_basket"
+                                                    value="0" />
+                                            Não</label>
+
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
 
                         @include('admin.shared.status-select', ['status' => 0])
                     </div>

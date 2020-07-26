@@ -137,10 +137,15 @@ class CouponController extends Controller
     {
         $data = $request->except('_token', '_method');
 
+        if(is_null($request->input('id'))) {
+            $this->couponRepository->create($data);
+        }else{
+            $coupon = $this->couponRepository->find($request->input('id'));
 
+            $update = new CouponRepository($coupon);
 
-        $product = $this->couponRepository->store($data);
-
+            $update->update($data);
+        }
 
         $request->session()->flash('message', $this->getSucessMesseger());
 

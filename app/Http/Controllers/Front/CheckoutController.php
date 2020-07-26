@@ -344,16 +344,18 @@ class CheckoutController extends Controller
             ->where('start_at', '<=', Carbon::now())
             ->where('status', '!=', 0);
 
-        if ((!$this->hasbasket()) || $coupon->count() == 0) {
+        if ($coupon->count() == 0) {
             return redirect()->back()->withErrors(['message'=>'Cupom Inválido']);
 
+        }elseif($coupon->first()->need_basket && !$this->hasbasket()) {
+            return redirect()->back()->withErrors(['message'=>'É necessário ter uma cesta no carrinho para aplicar esse cupom']);
         }else{
             $coupon = $coupon->first();
             //return redirect(route('front.checkout'))->with('message','Cupom aplicado com sucesso');
 //            $request->session()->put(['coupon'=>$coupon->get()[0]]);
             $courier = $this->courierRepo->findCourierById($request->input('courier_id'));
 
-            $total = $this->cartRepo->getTotal(2,$courier->cost);
+            $total = $this->cartRepo->getSubTotal(2,$courier->cost);
             $discount =  $coupon->percentage;
 
             if($coupon->couponType->name == 'Percentual'){
