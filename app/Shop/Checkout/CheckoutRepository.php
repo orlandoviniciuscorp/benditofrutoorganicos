@@ -23,7 +23,7 @@ class CheckoutRepository
 
         $fairRepo = new FairRepository(new Fair);
 
-
+        //dd('dataTotal:' . $data['total']);
 
         $order = $orderRepo->createOrder([
             'reference' => $data['reference'],

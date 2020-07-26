@@ -207,6 +207,8 @@ class CheckoutController extends Controller
             $discount =  $request->input('discount');
         }
 
+
+
 //
         $order = $checkoutRepo->buildCheckoutItems([
             'reference' => Uuid::uuid4()->toString(),
