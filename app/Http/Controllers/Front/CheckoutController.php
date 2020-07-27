@@ -355,7 +355,11 @@ class CheckoutController extends Controller
 //            $request->session()->put(['coupon'=>$coupon->get()[0]]);
             $courier = $this->courierRepo->findCourierById($request->input('courier_id'));
 
-            $total = $this->cartRepo->getSubTotal(2,$courier->cost);
+            if($coupon->include_delivery) {
+                $total = $this->cartRepo->getTotal(2, $courier->cost);
+            }else{
+                $total = $this->cartRepo->getSubTotal(2, $courier->cost);
+            }
             $discount =  $coupon->percentage;
 
             if($coupon->couponType->name == 'Percentual'){

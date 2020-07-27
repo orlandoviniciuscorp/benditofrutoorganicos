@@ -43,6 +43,7 @@ class Coupon extends Model
         'start_at',
         'expires_at',
         'status',
+        'include_delivery',
         'coupon_type_id'
 
         ];
