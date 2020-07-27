@@ -72,6 +72,36 @@
                             </ul>
                         </div>
 
+                        <div class="form-group">
+                            <label for="need_basket">Inclui Frete:</label>
+                            <ul class="checkbox-list">
+                                <li>
+                                    <div class="radio">
+                                        <label>
+                                            <input
+                                                    type="radio"
+                                                    checked="checked"
+                                                    name="include_delivery"
+                                                    value="1" />
+                                            Sim</label>
+
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="radio">
+                                        <label>
+                                            <input
+                                                    type="radio"
+                                                    name="include_delivery"
+                                                    value="0" />
+                                            Não</label>
+
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
                         @include('admin.shared.status-select', ['status' => 0])
                     </div>
                 </div>
